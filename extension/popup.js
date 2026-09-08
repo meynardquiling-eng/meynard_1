@@ -158,6 +158,15 @@ async function onSaveSettings() {
     setSettingsStatus('Paste a published CSV link first.', true);
     return;
   }
+  if (url.includes('/edit')) {
+    setSettingsStatus(
+      "That's the normal Sheets edit link, not a CSV link — it won't work. Use File → Share → " +
+        "Publish to web → format Comma-separated values (.csv), then paste the resulting " +
+        "'.../pub?output=csv' link instead.",
+      true
+    );
+    return;
+  }
   await chrome.storage.local.set({ csvUrl: url, hasHeader });
   await syncFromSheet({ preserveChecks: false, fromSettings: true });
 }
@@ -181,6 +190,17 @@ async function syncFromSheet({ preserveChecks, fromSettings }) {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Sheet responded with ${res.status}`);
     const csvText = await res.text();
+
+    const contentType = (res.headers.get('content-type') || '').toLowerCase();
+    const looksLikeHtml = /^\s*<(!doctype|html)/i.test(csvText) || contentType.includes('text/html');
+    if (looksLikeHtml) {
+      throw new Error(
+        "that link returned a web page instead of CSV data. Make sure the sheet is published " +
+          "(File → Share → Publish to web → format Comma-separated values) and that you're using " +
+          "the '.../pub?output=csv' link, not the edit/share link"
+      );
+    }
+
     const rows = parseCsv(csvText);
     const dataRows = local.hasHeader !== false ? rows.slice(1) : rows;
 
@@ -217,7 +237,7 @@ async function syncFromSheet({ preserveChecks, fromSettings }) {
       setTimeout(() => showView('main'), 700);
     }
   } catch (err) {
-    const msg = `Couldn't load the sheet: ${err.message}. Make sure it's published to the web as CSV.`;
+    const msg = `Couldn't load the sheet: ${err.message}.`;
     if (fromSettings) setSettingsStatus(msg, true);
     else els.syncStatus.textContent = msg;
   }
