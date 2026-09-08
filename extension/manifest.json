@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Ticket Trainer Notepad",
+  "version": "1.0.0",
+  "description": "Track notes per ticket and check off required actions pulled live from a shared Google Sheet.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ticket Trainer Notepad"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://docs.google.com/*"]
+}

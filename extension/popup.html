@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ticket Trainer Notepad</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Ticket Trainer Notepad</h1>
+    <button id="settingsBtn" title="Settings" aria-label="Settings">&#9881;</button>
+  </header>
+
+  <main id="mainView">
+    <section class="ticket-row">
+      <input id="ticketId" type="text" placeholder="Ticket ID / name" autocomplete="off">
+      <button id="newTicketBtn" class="secondary">New ticket</button>
+    </section>
+
+    <section class="progress-section">
+      <div class="progress-label">
+        <span id="progressText">0 / 0 actions done</span>
+        <button id="refreshBtn" class="link-btn" title="Refresh checklist from sheet">Refresh</button>
+      </div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    </section>
+
+    <section id="checklistSection">
+      <div id="checklistEmpty" class="empty-state" hidden>
+        No checklist loaded yet. Open Settings (&#9881;) and paste your published Google Sheet CSV link.
+      </div>
+      <ul id="checklistList"></ul>
+    </section>
+
+    <section class="notepad-section">
+      <label for="notepad">Notes for this ticket</label>
+      <textarea id="notepad" placeholder="What did you do, what's still pending, anything odd about this ticket..."></textarea>
+    </section>
+
+    <footer id="syncFooter"><span id="syncStatus"></span></footer>
+  </main>
+
+  <main id="settingsView" hidden>
+    <section class="settings-section">
+      <label for="csvUrlInput">Published Google Sheet CSV link</label>
+      <input id="csvUrlInput" type="text" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" autocomplete="off">
+      <p class="hint">
+        In Google Sheets: <strong>File &rarr; Share &rarr; Publish to web</strong> &rarr; pick the checklist tab &rarr; format
+        <strong>Comma-separated values (.csv)</strong> &rarr; Publish, then paste the link here.
+        Column A = pain point / thing to address on the ticket, Column B = action to do about it.
+      </p>
+      <label class="checkbox-row">
+        <input id="hasHeaderCheckbox" type="checkbox" checked>
+        First row is a header row (skip it)
+      </label>
+      <div class="settings-actions">
+        <button id="saveSettingsBtn">Save &amp; sync</button>
+        <button id="backBtn" class="secondary">Back</button>
+      </div>
+      <p id="settingsStatus" class="hint"></p>
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
