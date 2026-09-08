@@ -22,6 +22,7 @@ const els = {
   checklistEmpty: document.getElementById('checklistEmpty'),
 
   syncStatus: document.getElementById('syncStatus'),
+  qaScoresBtn: document.getElementById('qaScoresBtn'),
 
   csvUrlInput: document.getElementById('csvUrlInput'),
   hasHeaderCheckbox: document.getElementById('hasHeaderCheckbox'),
@@ -57,6 +58,9 @@ async function init() {
   els.newTicketBtn.addEventListener('click', onNewTicket);
   els.ticketId.addEventListener('input', scheduleSave);
   els.notepad.addEventListener('input', scheduleSave);
+  els.qaScoresBtn.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('qa.html') });
+  });
 }
 
 function showView(name) {

@@ -1,0 +1,341 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA Score Charts</title>
+<style>
+  :root{color-scheme:light}
+  body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #F1F4F1;
+    --surface: #FFFFFF;
+    --surface-2: #E9EEEA;
+    --ink: #17262A;
+    --ink-soft: #52655F;
+    --ink-faint: #7C8D87;
+    --line: #DCE3DD;
+    --accent: #C2298A;
+    --accent-strong: #9E1B6F;
+    --accent-wash: #FBE7F2;
+    --good: #2E7D4F;
+    --good-wash: #E5F1E8;
+    --warn: #B8752B;
+    --warn-wash: #F5EADC;
+    --critical: #B23A34;
+    --critical-wash: #F6E4E3;
+    --nodata: #97A69F;
+    --shadow: 0 1px 2px rgba(16, 48, 43, 0.06), 0 4px 16px rgba(16, 48, 43, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0F1917;
+      --surface: #16211F;
+      --surface-2: #1D2A27;
+      --ink: #E8EEEA;
+      --ink-soft: #9FB3AC;
+      --ink-faint: #6E8781;
+      --line: #24332F;
+      --accent: #E85FB0;
+      --accent-strong: #F58FC9;
+      --accent-wash: #3A1730;
+      --good: #4FA876;
+      --good-wash: #17301F;
+      --warn: #D69A4E;
+      --warn-wash: #332616;
+      --critical: #E0685F;
+      --critical-wash: #351E1C;
+      --nodata: #4B5C56;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1917;
+    --surface: #16211F;
+    --surface-2: #1D2A27;
+    --ink: #E8EEEA;
+    --ink-soft: #9FB3AC;
+    --ink-faint: #6E8781;
+    --line: #24332F;
+    --accent: #E85FB0;
+    --accent-strong: #F58FC9;
+    --accent-wash: #3A1730;
+    --good: #4FA876;
+    --good-wash: #17301F;
+    --warn: #D69A4E;
+    --warn-wash: #332616;
+    --critical: #E0685F;
+    --critical-wash: #351E1C;
+    --nodata: #4B5C56;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Public Sans", system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; text-wrap: balance; margin: 0; }
+  .mono, .tabular { font-variant-numeric: tabular-nums; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 34px 20px 60px; display: flex; flex-direction: column; gap: 14px; }
+
+  .back-row { display: flex; align-items: center; gap: 8px; }
+  .back-link {
+    font-size: 12.5px; font-weight: 600; color: var(--ink-soft); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; background: var(--surface);
+  }
+  .back-link:hover { color: var(--accent-strong); border-color: var(--accent); }
+
+  .concept-flag {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--ink-soft);
+  }
+  .concept-badge {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 999px; background: var(--accent-wash); color: var(--accent-strong);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 26px 28px 30px;
+  }
+
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .card-head h1 { font-size: 22px; font-weight: 600; }
+  .card-head .sub { font-size: 12.5px; color: var(--ink-faint); margin-top: 4px; }
+
+  .view-toggle-all {
+    font: inherit; font-size: 12.5px; font-weight: 600; color: var(--accent);
+    background: none; border: 1px solid var(--accent); border-radius: 999px; padding: 6px 13px; cursor: pointer;
+    white-space: nowrap;
+  }
+  .view-toggle-all:hover { background: var(--accent-wash); }
+  .view-toggle-all:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .hero-row {
+    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+    margin: 18px 0 4px; padding-bottom: 18px; border-bottom: 1px solid var(--line);
+  }
+  .hero-value { font-family: "Fraunces", serif; font-size: 44px; font-weight: 700; line-height: 1; }
+  .hero-label { font-size: 13px; color: var(--ink-soft); }
+  .hero-delta {
+    margin-left: auto; font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .hero-delta.down { color: var(--critical); background: var(--critical-wash); }
+  .hero-delta.up { color: var(--good); background: var(--good-wash); }
+
+  section.block { margin-top: 24px; }
+  .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .block-head h2 { font-size: 15.5px; font-weight: 600; }
+  .block-note { font-size: 12px; color: var(--ink-faint); }
+
+  /* ---- Weekly trend line chart ---- */
+  .trend-wrap { position: relative; }
+  .trend-wrap svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .trend-grid-line { stroke: var(--line); stroke-width: 1; }
+  .trend-axis-label { fill: var(--ink-faint); font-family: "IBM Plex Mono", monospace; font-size: 10px; }
+  .trend-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .trend-point { fill: var(--accent); stroke: var(--surface); stroke-width: 2; cursor: pointer; }
+  .trend-point:hover, .trend-point:focus-visible { fill: var(--accent-strong); outline: none; }
+  .trend-value-label { fill: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 500; }
+  .trend-sub-label { fill: var(--ink-faint); font-family: "Public Sans", sans-serif; font-size: 10.5px; }
+  .trend-tooltip {
+    position: absolute; pointer-events: none; z-index: 5; transform: translate(-50%, -100%);
+    background: var(--ink); color: var(--paper); font-size: 12px; line-height: 1.45;
+    padding: 7px 10px; border-radius: 7px; white-space: nowrap; box-shadow: var(--shadow);
+    opacity: 0; transition: opacity 0.1s ease;
+  }
+  .trend-tooltip.show { opacity: 1; }
+  .trend-tooltip strong { font-weight: 600; }
+
+  /* ---- Class bars ---- */
+  .class-rows { display: flex; flex-direction: column; }
+  .class-row { padding: 13px 0; border-top: 1px solid var(--line); }
+  .class-row:first-child { border-top: none; padding-top: 4px; }
+  .class-row-top { display: flex; align-items: center; gap: 12px; }
+  .class-name-wrap { flex: 0 0 190px; min-width: 0; }
+  .class-name { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .class-meta { font-size: 11px; color: var(--ink-faint); margin-top: 1px; }
+  .bar-wrap { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .bar-track { position: relative; flex: 1; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+  .bar-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 6px; }
+  .bar-fill.good { background: var(--good); }
+  .bar-fill.warn { background: var(--warn); }
+  .bar-fill.critical { background: var(--critical); }
+  .bar-track.nodata { background: repeating-linear-gradient(135deg, var(--surface-2), var(--surface-2) 5px, var(--line) 5px, var(--line) 9px); }
+  .bar-value { flex: none; font-size: 13.5px; font-weight: 600; min-width: 38px; text-align: right; }
+  .bar-value.nodata { color: var(--ink-faint); font-weight: 400; font-style: italic; font-size: 12px; }
+  .expand-btn {
+    flex: none; width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink-soft); cursor: pointer; font-size: 13px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .expand-btn:hover { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-wash); }
+  .expand-btn[aria-expanded="true"] { transform: rotate(45deg); }
+
+  .trainee-panel { margin: 12px 0 2px 0; padding: 14px 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 7px; }
+  .trainee-panel[hidden] { display: none; }
+  .trainee-panel .panel-caption { font-size: 11.5px; color: var(--ink-faint); margin-bottom: 2px; }
+  .trainee-bar-row { display: flex; align-items: center; gap: 10px; }
+  .trainee-name { flex: 0 0 84px; font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .trainee-track { flex: 1; height: 8px; border-radius: 4px; background: var(--surface-2); position: relative; overflow: hidden; }
+  .trainee-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; background: var(--accent); opacity: 0.85; }
+  .trainee-pct { flex: none; font-size: 11.5px; min-width: 30px; text-align: right; color: var(--ink-soft); }
+
+  /* ---- Legend ---- */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); }
+  .legend-swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .legend-swatch.good { background: var(--good); }
+  .legend-swatch.warn { background: var(--warn); }
+  .legend-swatch.critical { background: var(--critical); }
+  .legend-swatch.nodata { background: repeating-linear-gradient(135deg, var(--surface-2), var(--surface-2) 3px, var(--ink-faint) 3px, var(--ink-faint) 5px); border: 1px solid var(--line); }
+
+  /* ---- Table view (accessible alternative to the charts) ---- */
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data-table th { text-align: left; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; padding: 0 12px 8px 0; }
+  table.data-table td { padding: 8px 12px 8px 0; border-top: 1px solid var(--line); }
+  table.data-table td.num, table.data-table th.num { text-align: right; padding-right: 0; }
+  .table-wrap { overflow-x: auto; }
+  .status-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; }
+  .status-tag .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-tag .dot.good { background: var(--good); }
+  .status-tag .dot.warn { background: var(--warn); }
+  .status-tag .dot.critical { background: var(--critical); }
+  .status-tag .dot.nodata { background: var(--nodata); }
+
+  [hidden] { display: none !important; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card { animation: rise 0.32s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  }
+  @media (max-width: 560px) {
+    .card { padding: 20px 16px 24px; }
+    .class-name-wrap { flex-basis: 108px; }
+    .hero-delta { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="back-row">
+    <a class="back-link" href="popup.html">&larr; Back to Ticket Notepad</a>
+  </div>
+
+  <div class="concept-flag">
+    <span class="concept-badge">Concept &middot; not wired to live data</span>
+    <span>Same numbers as the Transformation QA modal &mdash; the weekly bar-list and the per-trainee table are redrawn here as an actual trend line and a status-colored bar chart.</span>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h1>Transformation avg. quality score</h1>
+        <div class="sub">Read from the QA Score tab of 4 QA files on 5 classes</div>
+      </div>
+      <button type="button" class="view-toggle-all" id="viewToggleAll">View as table</button>
+    </div>
+
+    <div id="chartsView">
+      <div class="hero-row">
+        <span class="hero-value mono">40%</span>
+        <span class="hero-label">average QA score &middot; 19 trainees</span>
+        <span class="hero-delta down">&darr; 8 pts &middot; wk 556 vs wk 555</span>
+      </div>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Weekly trend</h2>
+          <span class="block-note">Trainee average by week, all Transformation classes</span>
+        </div>
+        <div class="trend-wrap" id="trendWrap">
+          <svg viewBox="0 0 640 200" role="img" aria-label="Weekly QA score trend: week 554 at 43 percent, week 555 at 41 percent, week 556 at 33 percent">
+            <line class="trend-grid-line" x1="40" y1="186" x2="620" y2="186"></line>
+            <line class="trend-grid-line" x1="40" y1="144.5" x2="620" y2="144.5"></line>
+            <line class="trend-grid-line" x1="40" y1="103" x2="620" y2="103"></line>
+            <line class="trend-grid-line" x1="40" y1="61.5" x2="620" y2="61.5"></line>
+            <line class="trend-grid-line" x1="40" y1="20" x2="620" y2="20"></line>
+            <text class="trend-axis-label" x="34" y="189" text-anchor="end">0</text>
+            <text class="trend-axis-label" x="34" y="147.5" text-anchor="end">25</text>
+            <text class="trend-axis-label" x="34" y="106" text-anchor="end">50</text>
+            <text class="trend-axis-label" x="34" y="64.5" text-anchor="end">75</text>
+            <text class="trend-axis-label" x="34" y="23" text-anchor="end">100%</text>
+
+            <path class="trend-line" d="M40,114.6 L330,117.9 L620,131.2"></path>
+
+            <circle class="trend-point" data-week="554" data-value="43" data-count="10" cx="40" cy="114.6" r="4.5" tabindex="0"></circle>
+            <circle class="trend-point" data-week="555" data-value="41" data-count="19" cx="330" cy="117.9" r="4.5" tabindex="0"></circle>
+            <circle class="trend-point" data-week="556" data-value="33" data-count="8" cx="620" cy="131.2" r="5.5" tabindex="0"></circle>
+
+            <text class="trend-value-label" x="40" y="100" text-anchor="middle">43%</text>
+            <text class="trend-value-label" x="330" y="103.9" text-anchor="middle">41%</text>
+            <text class="trend-value-label" x="620" y="147.2" text-anchor="middle" font-weight="600">33%</text>
+
+            <text class="trend-sub-label" x="40" y="199" text-anchor="middle">Wk 554</text>
+            <text class="trend-sub-label" x="330" y="199" text-anchor="middle">Wk 555</text>
+            <text class="trend-sub-label" x="620" y="199" text-anchor="middle">Wk 556</text>
+          </svg>
+          <div class="trend-tooltip mono" id="trendTooltip"></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>By class</h2>
+          <span class="block-note">Click a class to see its per-trainee breakdown</span>
+        </div>
+        <div class="class-rows" id="classRows"><!-- populated by JS --></div>
+      </section>
+
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch good"></span>60%+ &mdash; on target</span>
+        <span class="legend-item"><span class="legend-swatch warn"></span>25&ndash;59% &mdash; needs attention</span>
+        <span class="legend-item"><span class="legend-swatch critical"></span>under 25% &mdash; at risk</span>
+        <span class="legend-item"><span class="legend-swatch nodata"></span>no QA Score tab read yet</span>
+      </div>
+    </div>
+
+    <div id="tableView" hidden>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Week</th><th class="num">Avg. QA score</th><th class="num">Trainees scored</th></tr></thead>
+          <tbody>
+            <tr><td>554</td><td class="num mono">43%</td><td class="num mono">10</td></tr>
+            <tr><td>555</td><td class="num mono">41%</td><td class="num mono">19</td></tr>
+            <tr><td>556</td><td class="num mono">33%</td><td class="num mono">8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap" style="margin-top:22px;">
+        <table class="data-table">
+          <thead><tr><th>Class</th><th>Status</th><th class="num">Avg. QA score</th><th class="num">Trainees</th></tr></thead>
+          <tbody>
+            <tr><td>Team James &mdash; Retention Trans&hellip;</td><td><span class="status-tag"><span class="dot warn"></span>Needs attention</span></td><td class="num mono">41%</td><td class="num mono">10</td></tr>
+            <tr><td>Team Carla/Noimyr &mdash; (7/27/20&hellip;)</td><td><span class="status-tag"><span class="dot warn"></span>Needs attention</span></td><td class="num mono">38%</td><td class="num mono">9</td></tr>
+            <tr><td>Team Kevin &amp; Team Mary &mdash; Re&hellip;</td><td><span class="status-tag"><span class="dot nodata"></span>File couldn&rsquo;t be read</span></td><td class="num mono">&mdash;</td><td class="num mono">&mdash;</td></tr>
+            <tr><td>NH Cohort 08/17/2026</td><td><span class="status-tag"><span class="dot nodata"></span>No QA file attached</span></td><td class="num mono">&mdash;</td><td class="num mono">&mdash;</td></tr>
+            <tr><td>NH Cohort 09/07/2026</td><td><span class="status-tag"><span class="dot nodata"></span>No QA file attached</span></td><td class="num mono">&mdash;</td><td class="num mono">&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="qa.js"></script>
+</body>
+</html>

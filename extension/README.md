@@ -2,7 +2,9 @@
 
 A Chrome/Edge browser extension for trainees: a notepad for the ticket
 they're currently working, plus a live checklist of required actions synced
-from a Google Sheet that admins maintain.
+from a Google Sheet that admins maintain. A "QA Scores" button opens a
+full-tab dashboard (weekly trend + per-class/per-trainee breakdown) as a
+separate page, since it needs more room than the popup.
 
 ## What it does
 
@@ -38,6 +40,16 @@ one read-only fetch of the published CSV.
 3. Click **Load unpacked** and select this `extension/` folder.
 4. Pin the extension, open its popup, click the gear icon, and paste the
    published CSV link from above.
+
+## QA Scores page
+
+`qa.html` is a static copy of the "QA Score Charts Concept" design (weekly
+trend line, per-class status bars with a per-trainee drill-down, and a
+table-view toggle). It ships with the same demo numbers as the original
+concept and is **not wired to live data yet** — that would need a real data
+source (e.g. the same published-CSV pattern as the checklist, or a Sheets
+API call) plugged into `qa.js` in place of the `CLASSES`/`JAMES_TRAINEES`
+arrays.
 
 ## Notes
 
